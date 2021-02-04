@@ -1,0 +1,16 @@
+Reimplement hangman.
+
+Limitations/differences from before:
+
+-No loops are allowed except for the main game loop, which is a single while loop. All looping must be subsumed through map, filter, and reduce.
+
+-The art for hangman should be read from a file, this art connotates the state of the game.
+
+-The user should be able to enter their name, where their name and score will be recorded to a file after each game.X
+
+-The game will tell the user if they have the high score or not.
+
+- no exceptions are allowed, all exceptions must be caught by the program./
+
+Questions for this assignment
+Can map, filter, and reduce really fit all my needs for this game?
