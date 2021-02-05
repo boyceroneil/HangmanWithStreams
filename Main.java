@@ -3,6 +3,7 @@ import org.hibernate.SessionFactory;
 import org.hibernate.cfg.Configuration;
 
 import java.io.BufferedReader;
+import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
 import java.nio.charset.Charset;
@@ -12,12 +13,14 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardOpenOption;
 import java.util.*;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 
 //will need to filter the arraylist for the correct letter
 public class Main {
     static Path filePath = Paths.get("textFiles\\Player");
+    static Path filePath2 = Paths.get("textFiles\\Scores");
     public static void main(String[] args) throws IOException {
         Charset utf8 =StandardCharsets.UTF_8;
         List<String> list = new ArrayList<>();
@@ -34,18 +37,17 @@ public class Main {
         answer.add(list.get(rando));
 
         String word =list.get(rando);
+        String blank = word.replaceAll("[a-z]", "_");
         word = word.replaceAll("[a-z]", "_");
-        String blank = word;
-
 
         System.out.println("What's your name? ");
         Scanner inn = new Scanner(System.in);
         String user = inn.nextLine();
         int score =0;
-        int counter =0;
+        int counter =6;
         int correct = word.length();
 
-        while(counter <6){
+        while(counter >0){
             Stream<String> stream = Stream.of(list.get(rando));
             Scanner input = new Scanner(System.in);
             System.out.println("guess the letter" + "\n "+ blank);
@@ -60,12 +62,16 @@ public class Main {
 //                }
 //            }
 //            else{
-//                counter++;
+//                counter--;
 //                score-=5;
 //            }
-            if(list.get(0).contains(guess)){
-            word = list.stream().filter(s-> s.contains(guess)).toString();
+            if(answer.get(0).contains(guess)){
+
+            word = answer.stream().filter(s-> s.contains(guess)).collect(Collectors.joining());
+            String p = guess;
+            word.replaceFirst("-",p);
             System.out.println(word);
+            System.out.println("You've got " +correct +" left to find");
                 score+=10;
                 correct-=1;
                 if(correct==0){
@@ -74,33 +80,50 @@ public class Main {
                 }
             }
             else{
-                counter++;
+                counter--;
+                System.out.println("You've got " + counter + " tries left and "+ correct +" letters to find");
                 score-=5;
             }
 
         }
-        if (counter == 6) {
+        if (counter == 0) {
             System.out.println("You reached the limit. "+ counter+ " and the word is " + list.get(rando));
         }
-        Files.writeString(filePath,"\n"+user+" "+score,StandardOpenOption.APPEND);
+        Files.writeString(filePath,"\n"+user  +" "+score,StandardOpenOption.APPEND);
+        Files.writeString(filePath2,"\n"+score,StandardOpenOption.APPEND);
+
         //Files.write(Paths.get("textFiles\\Player"), user+" "+ score, utf8, StandardOpenOption.CREATE,StandardOpenOption.APPEND);
        // writeToAFile(user,score);
         if(findHighest(score)){
-            System.out.println(user+" "+score+" is the highest");
+            System.out.println(user+" has the highest score of "+score);
         }
     }
 
     public static boolean findHighest(int score){//need to work on this
         List<String> check = new ArrayList<>();
+        boolean result = false;
+        String buffer="";
         try{
-            check =readLines("textFiles\\Player");
+            Scanner file = new Scanner(new File("textFiles\\Scores"));
+            while(file.hasNextInt()) {
+                int number = file.nextInt();
+
+                if(number > score) {
+                    result = false;
+                }
+                else{
+                    result = true;
+                }
+            }
+            //check =readLines("textFiles\\Player");
+        file.close();
         }catch(IOException e){
             e.printStackTrace();
         }
         Stream<String> stream = Stream.of(check.toString());
         //stream.anyMatch(s->s.contains(score));
 
-        return false;
+        return result;
     }
     public static List<String> readLines(String filename) throws IOException{
         FileReader fileReader = new FileReader(filename);
